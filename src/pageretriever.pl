@@ -2,9 +2,9 @@
 # Script allowing automated download of wikipedia articles and categories.
 # Arguments :
 # 	-d	Specifies the depth of the category tree, defaults to 0 which corresponds to no expansion of the subcategories.
-#		-o  Specifies the name of the output file.
-#		-v 	Verbose.
-#				The rest of the arguments are interpreted as a list of categories to download.
+#	-o  Specifies the name of the output file.
+#	-v 	Verbose.
+#	The rest of the arguments are interpreted as a list of categories to download.
 #
 use Getopt::Std;
 use WWW::Mechanize;
@@ -56,10 +56,4 @@ open(my $fh, '>', $resultFile);
 print $fh $mech->submit->decoded_content;
 close $fh;
 
-printStats();
-
-sub printStats { 
-	print "Done downloading these articles !\n";
-	print "\tCategories expanded: $stats{'expanded'}";
-	print "\tArticles downloaded: $stats{'articlenum'}";
-}
+print "Done downloading $stats{'articlenum'} articles from $stats{'expanded'} Wikipedia categories\n";
