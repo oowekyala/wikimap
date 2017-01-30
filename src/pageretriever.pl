@@ -8,6 +8,8 @@
 #
 use Getopt::Std;
 use WWW::Mechanize;
+use Set::Scalar;
+use Set::Light;
 use strict;
 use open ':std', ':encoding(UTF-8)';
 
@@ -20,9 +22,10 @@ my $resultFile = $args{o}               # Output file
 	|| ($ENV{'TEMP'} + '/wikimap_raw_default.xml');  
 
 die "You did not mention any categories to download, stopped" if @ARGV == 0;
-my @catQueue = @ARGV; 									
-my @catBuffer = ();
-my %stats = ('expanded' => 0, 'articlenum' => 0);
+my @catQueue = @ARGV; 					# Categories left to process
+my @catBuffer = ();						# Buffs the cats to expand at next depth 
+my $processedCats = Set::Light->new();	# Stores processed categories
+my $articleSet = Set::Scalar->new();	# Stores processed articles
 
 my $url = 'https://en.wikipedia.org/wiki/Special:Export';
 my $mech = WWW::Mechanize->new;
@@ -32,16 +35,21 @@ $mech->form_number(1);
 # WIKIPEDIA EXPORT FORM MANIPULATION
 while ($depth >= 0) {
 	foreach my $cat (@catQueue){
-		$mech->field("catname", $cat);
-		$mech->click('addcat');
-		$stats{'expanded'}++;
-		print "\tExpanded: $cat" if $args{'v'};
+		if (!$processedCats->has($cat)){
+			$mech->field("catname", $cat);
+			$mech->click('addcat');
 
-		foreach my $line (split(/\n/, $mech->value("pages"))){
-			if ($line=~/Category:.++/){
-				push(@catBuffer, $line);
+			print "\tExpanded: $cat\n" if $args{'v'};
+
+			foreach my $line (split(/\n/, $mech->value("pages"))){
+				if ($line=~/Category:.++/){
+					push(@catBuffer, $line);
+				} else {
+					$articleSet->insert($line);
+				}
 			}
-			$stats{'articlenum'}++;
+			$processedCats->insert($cat);
+			$mech->set_fields( "pages" => "");
 		}
 	}
 	push(@catQueue, filterCats(@catBuffer));
@@ -51,9 +59,14 @@ while ($depth >= 0) {
 # Filter out categories which will not be expanded
 sub filterCats { grep(!/.+?_(stubs|lists)\$/, @_) }
 
+my $allpages = $articleSet;
+$allpages =~ s/ /\n/g;
+$allpages = substr $allpages, 1, length($allpages) - 2;
+$mech->set_fields( "pages" => $allpages);
+
 # DUMPING OF THE FILE
 open(my $fh, '>', $resultFile);
 print $fh $mech->submit->decoded_content;
 close $fh;
 
-print "Done downloading $stats{'articlenum'} articles from $stats{'expanded'} Wikipedia categories\n";
+print "Done downloading " . $articleSet->size() . " articles from " . $processedCats->size() . " Wikipedia categories\n";
