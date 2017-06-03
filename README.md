@@ -1,19 +1,6 @@
 # Wikimap : wikipedia cartography pre-processing tool
 
-A preprocessor for wikipedia data files used to plot subsets of the encyclopedia on a graph.
-
-## Goal
-
-Wikipedia is a free encyclopedia, the enormous corpus of which can be used for data mining. As an enthusiastic user of the site I have always wanted to plot this apparently endless network of articles on a graph. This program allows the user to easily **download and preprocess a set of articles from Wikipedia**, e.g. a category, with or without its subcategories. The program **outputs CSV files** which describe the graph (that is, its nodes and edges), which can then be plotted using free graph visualisation software such as [Gephi](https://gephi.org/ "Gephi's homepage").
-
-## Usage
-
-### Wikimap interface
-
-The program has no interface yet. You can find documentation in the sources.
-
-### Plotting wikipedia using Gephi
-
+This program allows the user to easily **download and preprocess a set of articles from Wikipedia**, e.g. a category, with or without its subcategories. The program **outputs CSV files** which describe the graph (that is, its nodes and edges), which can then be plotted using free graph visualisation software such as [Gephi](https://gephi.org/ "Gephi's homepage").
 
 ## Gallery
 
@@ -30,7 +17,7 @@ Snapshot : middle left orange cluster.
 
 ## Design
 
-The program can be described as a set of independent scripts, which in order operate the following operations :
+The program is made up of several scripts, which:
 
 1. *Download* a set of articles in the wikipedia XML flavour
 2. *Parse* this XML file into another XML file which contains only relevant information (article titles, links and category information)
