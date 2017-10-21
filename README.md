@@ -1,12 +1,8 @@
 # Wikimap : wikipedia graphing tool
 
-Transform a wikipedia XML dump of articles into [GEXF graph format](), suitable for plotting with e.g. [Gephi](https://gephi.org/ "Gephi's homepage"). The graph is created in the following way:
-* Each node represents an article
-* Each edge (directed) represents a link from a wiki page to another page
-* Edges are weighted according to the number of links that link the same articles
-* Links pointing to an article which is not contained in the set of nodes are discarded
+Transform a wikipedia XML dump of articles into [GEXF graph format](), suitable for plotting with e.g. [Gephi](https://gephi.org/ "Gephi's homepage"). Jump to the [gallery](#gallery) or look into the [images dir](./images) for examples of final graphs! The next section explains how to make your own graphs.
 
-## Usage:
+## Usage
 
 ### Download Wikipedia articles
 
@@ -19,9 +15,16 @@ Done downloading 411 articles from 11 Wikipedia categories
 
 ### Transform and process the graph
 * You'll need a Scala interpreter for that to work. Transform the dump into GEXF with
-```shell
-$ src/XmlGraphMaker.scala -i <your xml dump> -o <your output file>
-```
+  ```shell
+  $ src/XmlGraphMaker.scala -i <your xml dump> -o <your output file>
+  ```
+  The graph is created in the following way:
+  * Each node represents an article
+  * Each edge (directed) represents a link from a wiki page to another page
+  * Edges are weighted according to the number of links that link the same articles
+  * Links pointing to an article which is not contained in the set of nodes are discarded
+
+
 * Open the generated graph file with Gephi and process it as you like, then export your image for others to see!
 
 
