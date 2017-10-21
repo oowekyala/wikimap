@@ -6,6 +6,7 @@
 #	-v 	Verbose.
 #	The rest of the arguments are interpreted as a list of categories to download.
 #
+use warnings;
 use Getopt::Std;
 use WWW::Mechanize;
 use Set::Scalar;
