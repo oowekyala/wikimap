@@ -18,7 +18,7 @@ Done downloading 411 articles from 11 Wikipedia categories
 ```
 
 ### Transform and process the graph
-* Transform the dump into GEXF with
+* You'll need a Scala interpreter for that to work. Transform the dump into GEXF with
 ```shell
 $ src/XmlGraphMaker.scala -i <your xml dump> -o <your output file>
 ```
