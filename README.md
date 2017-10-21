@@ -31,17 +31,22 @@ $ src/XmlGraphMaker.scala -i <your xml dump> -o <your output file>
 
 ## Gallery
 
-The following images are snapshots of the graph obtained with several linguistics-related categories. 
+### Programming languages
+
 
 Full graph.
-![alt text][full-linguistics]
-Snapshot : upper right blue cluster.
-![alt text][phonology]
-Snapshot : middle right black cluster.
-![alt text][sociolinguistics]
-Snapshot : middle left orange cluster.
-![alt text][formal_languages]
+![Programming languages, depth 1](./images/programming-languages-1.svg)
 
+### Linguistics + formal languages
+
+Full graph.
+![Full linguistics graph][full-linguistics]
+Snapshot : middle right black cluster.
+![Sociolinguistics cluster][sociolinguistics]
+Snapshot : middle left orange cluster.
+![Formal languages cluster][formal_languages]
+
+[programming-languages]: ./images/programming-languages-1.svg "Programming languages category, depth of 1"
 [phonology]: ./images/phonology.png "Detail : phonology"
 [sociolinguistics]: ./images/sociolinguistics.png "Detail : sociolinguistics"
 [formal_languages]: ./images/formal_languages.png "Detail : formal languages"
