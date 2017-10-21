@@ -25,11 +25,14 @@ $ src/XmlGraphMaker.scala -i <your xml dump> -o <your output file>
 * Open the generated graph file with Gephi and process it as you like, then export your image for others to see!
 
 
-
-
-
-
 ## Gallery
+
+Gephi allows you to make some pretty impressive graphs! Here's the baseline with which I processed the graphs below:
+* Color the nodes according to modularity class
+* Size the nodes according to the inbound degree
+* Spatialise with Force Atlas 2 until the graph stabilises
+
+Then you can fiddle with node placement, filter out smaller nodes if there are too many, delete nodes that add too much noise (eg the main article of a category, to which nearly every article links, or list articles, which have many outbound links)... 
 
 ### Programming languages
 
