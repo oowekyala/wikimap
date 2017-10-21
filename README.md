@@ -32,10 +32,10 @@ Done downloading 411 articles from 11 Wikipedia categories
 
 Gephi allows you to make some pretty impressive graphs! Here's the baseline with which I processed the graphs below:
 * Color the nodes according to modularity class
-* Size the nodes according to the inbound degree
+* Size the nodes according to the inbound degree/ centrality
 * Spatialise with Force Atlas 2 until the graph stabilises
 
-Then you can fiddle with node placement, filter out smaller nodes if there are too many, delete nodes that add too much noise (eg the main article of a category, to which nearly every article links, or list articles, which have many outbound links)... 
+Then you can fiddle with node placement, filter out smaller nodes if there are too many, delete nodes that add too much noise (eg the main article of a category, to which nearly every article links, or list articles, which have many outbound links)... whatever looks best! 
 
 ### Programming languages
 
