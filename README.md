@@ -1,6 +1,33 @@
-# Wikimap : wikipedia cartography pre-processing tool
+# Wikimap : wikipedia graphing tool
 
-This program allows the user to easily **download and preprocess a set of articles from Wikipedia**, e.g. a category, with or without its subcategories. The program **outputs CSV files** which describe the graph (that is, its nodes and edges), which can then be plotted using free graph visualisation software such as [Gephi](https://gephi.org/ "Gephi's homepage").
+Transform a wikipedia XML dump of articles into [GEXF graph format](), suitable for plotting with e.g. [Gephi](https://gephi.org/ "Gephi's homepage"). The graph is created in the following way:
+* Each node represents an article
+* Each edge (directed) represents a link from a wiki page to another page
+* Edges are weighted according to the number of links that link the same articles
+* Links pointing to an article which is not contained in the set of nodes are discarded
+
+## Usage:
+
+### Download Wikipedia articles
+
+* Use [Wikipedia's export form](https://en.wikipedia.org/wiki/Special:Export) to download the articles and categories that interest you. 
+* Alternatively, this repo includes a perl script that fills out the form for you, and with which you can download the contents of a category and subcategories with depth as a parameter. You'll need a perl distribution, and the modules `Set::Light`, `Set::Scalar` and `WWW::Mechanize`, which you can [install from CPAN](http://www.cpan.org/modules/INSTALL.html). Example usage:
+```shell
+$ src/pageretriever.pl -o output.xml -d 1 Category:Formal_languages # Downloads the category and subcategories
+Done downloading 411 articles from 11 Wikipedia categories
+```
+
+### Transform and process the graph
+* Transform the dump into GEXF with
+```shell
+$ src/XmlGraphMaker.scala -i <your xml dump> -o <your output file>
+```
+* Open the generated graph file with Gephi and process it as you like, then export your image for others to see!
+
+
+
+
+
 
 ## Gallery
 
@@ -14,16 +41,6 @@ Snapshot : middle right black cluster.
 ![alt text][sociolinguistics]
 Snapshot : middle left orange cluster.
 ![alt text][formal_languages]
-
-## Design
-
-The program is made up of several scripts, which:
-
-1. *Download* a set of articles in the wikipedia XML flavour
-2. *Parse* this XML file into another XML file which contains only relevant information (article titles, links and category information)
-3. Load this data into an embedded database (using [Apache Derby](https://db.apache.org/derby/papers/DerbyTut/embedded_intro.html "Embedded Derby"))
-4. *Process the data in the database* so as to, for example, retain only links to other articles of the subset, weigh links, eliminate redirection pages (while still counting links to redirections as links to articles)...
-5. Finally dump the database into two CSV files, one for the edges, one for the nodes
 
 [phonology]: ./images/phonology.png "Detail : phonology"
 [sociolinguistics]: ./images/sociolinguistics.png "Detail : sociolinguistics"
