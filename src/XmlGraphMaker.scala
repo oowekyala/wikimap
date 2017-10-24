@@ -2,24 +2,37 @@
 exec scala "$0" "$@"
 !#
 
-import scala.xml.{Elem, Node, PrettyPrinter, XML}
+import scala.xml.{Elem, PrettyPrinter, XML}
 
+/** Wiki page, node of the graph. */
+class Node(elem: scala.xml.Node) {
 
-class Page(elem: Node) {
+  val title: String = (elem \ "title").text
 
-  def title: String = (elem \ "title").text
+  val url: String = "https://en.wikipedia.org/wiki/" + title.replace(" ", "_")
 
-  def id: Long = (elem \ "id").text.toLong
+  val shortTitle: String = title.replace("(programming language)", "")
 
-  def wikitext: String = (elem \ "revision" \ "text").text
+  val id: Long = (elem \ "id").text.toLong
 
-  def links: List[String] =
+  val wikitext: String = (elem \ "revision" \ "text").text
+
+  val isProgrammingLanguage: Boolean =
+    title.endsWith("(programming language)") || """(?i)\{\{Infobox programming language""".r.findFirstIn(wikitext).isDefined
+
+  val isMeta: Boolean =
+    """(?i)(.*list.*|.*comparison.*)""".r.findFirstIn(title).isDefined
+
+  val isCategory: Boolean = title.matches("Category:.*")
+
+  val links: List[String] =
     """\[\[([^#|\]]+)[^\]]*?]]""".r.findAllMatchIn(wikitext).map { m =>
       m.group(1).capitalize.replaceAll("[\\s_]+", " ")
     }.toList
 }
 
-case class Graph(nodes: Map[Long, String], edges: Map[(Long, Long), Int]) {
+
+case class Graph(nodes: Seq[Node], edges: Map[(Node, Node), Int]) {
   def toGexf: scala.xml.Elem =
     <gexf xmlns="http://www.gexf.net/1.2draft"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema−instance"
@@ -30,14 +43,29 @@ case class Graph(nodes: Map[Long, String], edges: Map[(Long, Long), Int]) {
         <description>Graph of some wikipedia articles</description>
       </meta>
       <graph defaultedgetype="directed">
+        <attributes class="node">
+          <attribute id="0" title="isProgrammingLanguage" type="boolean"/>
+          <attribute id="1" title="isMeta" type="boolean"/>
+          <attribute id="2" title="url" type="string"/>
+          <attribute id="3" title="isCategory" type="boolean"/>
+        </attributes>
         <nodes>
-          {nodes.map(e => <node id={e._1.toString} label={e._2}/>)}
+          {nodes map { e =>
+          <node id={e.id.toString} label={e.shortTitle}>
+            <attvalues>
+              <attvalue for="0" value={e.isProgrammingLanguage.toString}/>
+              <attvalue for="1" value={e.isMeta.toString}/>
+              <attvalue for="2" value={e.url}/>
+              <attvalue for="3" value={e.isCategory.toString}/>
+            </attvalues>
+          </node>
+        }}
         </nodes>
         <edges>
           {edges.zipWithIndex.map {
           case (((src, dst), weight), id) => <edge id={id.toString}
-                                                   source={src.toString}
-                                                   target={dst.toString}
+                                                   source={src.id.toString}
+                                                   target={dst.id.toString}
                                                    weight={weight.toString}/>
         }}
         </edges>
@@ -60,18 +88,18 @@ val pages = for {
   node <- doc \ "page"
   if !(node \ "title").text.startsWith("Category")
   if (node \ "ns").text.toInt == 0
-} yield new Page(node)
+} yield new Node(node)
 
 
-val nodeLookup = Map() ++ pages.map(p => p.title -> p.id)
+val nodeLookup = Map() ++ pages.map(p => p.title -> p)
 val edges = for {
   page <- pages
   link <- page.links
   if nodeLookup.contains(link)
-} yield page.id -> nodeLookup(link)
+} yield page -> nodeLookup(link)
 
 val weightedEdges = edges.groupBy(identity).mapValues(_.size)
-val gexf = Graph(nodeLookup.map(_.swap), weightedEdges).toGexf
+val gexf = Graph(pages, weightedEdges).toGexf
 
 if (output.isDefined) XML.save(output.get, gexf, "UTF-8", xmlDecl = true)
 else print(new PrettyPrinter(200, 4).format(gexf))
