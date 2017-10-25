@@ -3,6 +3,7 @@
 # Arguments :
 # 	-d	Specifies the depth of the category tree, defaults to 0 which corresponds to no expansion of the subcategories.
 #	-o  Specifies the name of the output file.
+#   -f  Specifies the name of a file in which to dump the list of articles before downloading.
 #	-v 	Verbose.
 #	The rest of the arguments are interpreted as a list of categories to download.
 #
@@ -16,11 +17,11 @@ use open ':std', ':encoding(UTF-8)';
 
 # ARGUMENT PARSING AND INITIALISATION
 my %args;
-getopts('d:o:v', \%args);
+getopts('d:o:vf:', \%args);
 
 my $depth = $args{d} || 0;              # Tree depth
-my $resultFile = $args{o}               # Output file
-	|| ($ENV{'TEMP'} + '/wikimap_raw_default.xml');  
+my $resultFile = $args{o} || die "You must provide an output file name";  # Output file
+my $logFile = $args{f};
 
 die "You did not mention any categories to download, stopped" if @ARGV == 0;
 my @catQueue = @ARGV; 					# Categories left to process
@@ -35,26 +36,32 @@ $mech->form_number(1);
 		
 # WIKIPEDIA EXPORT FORM MANIPULATION
 while ($depth >= 0) {
-	foreach my $cat (@catQueue){
-		if (!$processedCats->has($cat)){
+	foreach my $cat (@catQueue) {
+		if (!$processedCats->has($cat)) {
 			$mech->field("catname", $cat);
 			$mech->click('addcat');
 
 			print "\tExpanded: $cat\n" if $args{'v'};
 
-			foreach my $line (split(/\n/, $mech->value("pages"))){
-				if ($line=~/Category:.++/){
+			foreach my $line (split(/\n/, $mech->value("pages"))) {
+				if ($line=~/Category:.++/) {
 					push(@catBuffer, $line);
 				} else {
 					$articleSet->insert($line);
 				}
 			}
 			$processedCats->insert($cat);
-			$mech->set_fields( "pages" => "");
+			$mech->set_fields("pages" => "");
 		}
 	}
 	push(@catQueue, filterCats(@catBuffer));
 	$depth--;
+}
+
+sub expandCat {
+    # Mech, category, current depth
+    my ($m, $cat, $d) = @_;
+    
 }
 
 # Filter out categories which will not be expanded
@@ -65,9 +72,17 @@ $allpages =~ s/ /\n/g;
 $allpages = substr $allpages, 1, length($allpages) - 2;
 $mech->set_fields( "pages" => $allpages);
 
+# LOG DUMP
+if (defined $logFile) {
+    open(my $logfh, '>', $logFile);
+    print $logfh $allpages;
+    close $logfh;
+}
+
 # DUMPING OF THE FILE
+print "Trying to download " . $articleSet->size() . " articles from " . $processedCats->size() . " Wikipedia categories into " . $resultFile . "\n";
 open(my $fh, '>', $resultFile);
 print $fh $mech->submit->decoded_content;
 close $fh;
 
-print "Done downloading " . $articleSet->size() . " articles from " . $processedCats->size() . " Wikipedia categories\n";
+print "Done\n";
