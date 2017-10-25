@@ -41,7 +41,7 @@ Then you can fiddle with node placement, filter out smaller nodes if there are t
 
 
 Full graph.
-![Programming languages, depth 1](./images/programming-languages-1.svg)
+![Programming languages, depth 1](./images/programming-languages.svg)
 
 ### Linguistics + formal languages
 
