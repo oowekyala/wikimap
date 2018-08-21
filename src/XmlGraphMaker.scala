@@ -33,7 +33,13 @@ class Node(elem: scala.xml.Node) {
 
 
 case class Graph(nodes: Seq[Node], edges: Map[(Node, Node), Int]) {
-  def toGexf: scala.xml.Elem =
+  def output(file: Option[String]): Unit = file match {
+    case Some(f) => XML.save(f, toGexf, "UTF-8", xmlDecl = true)
+    case None => print(new PrettyPrinter(200, 4).format(toGexf))
+  }
+
+
+  lazy val toGexf: scala.xml.Elem =
     <gexf xmlns="http://www.gexf.net/1.2draft"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema−instance"
           xsi:schemaLocation="http://www.gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd"
@@ -75,9 +81,9 @@ case class Graph(nodes: Seq[Node], edges: Map[(Node, Node), Int]) {
 }
 
 
-val (input, output) = args.toList match {
+val (input, output) = (args: Array[String]).toList match {
   case "-i" :: i :: "-o" :: o :: _ => (i, Some(o))
-  case "-o" :: i :: "-i" :: o :: _ => (i, Some(o))
+  case "-o" :: o :: "-i" :: i :: _ => (i, Some(o))
   case "-i" :: i :: _ => (i, None)
   case _ => sys.error("Invalid arguments, mention at least the -i flag pls")
 }
@@ -91,6 +97,7 @@ val pages = for {
 } yield new Node(node)
 
 
+
 val nodeLookup = Map() ++ pages.map(p => p.title -> p)
 val edges = for {
   page <- pages
@@ -99,8 +106,5 @@ val edges = for {
 } yield page -> nodeLookup(link)
 
 val weightedEdges = edges.groupBy(identity).mapValues(_.size)
-val gexf = Graph(pages, weightedEdges).toGexf
 
-if (output.isDefined) XML.save(output.get, gexf, "UTF-8", xmlDecl = true)
-else print(new PrettyPrinter(200, 4).format(gexf))
-
+Graph(pages, weightedEdges).output(output)
