@@ -49,7 +49,7 @@ case class Graph(nodes: Map[Long, String], edges: Map[(Long, Long), Int]) {
 
 val (input, output) = args.toList match {
   case "-i" :: i :: "-o" :: o :: _ => (i, Some(o))
-  case "-o" :: i :: "-i" :: o :: _ => (i, Some(o))
+  case "-o" :: o :: "-i" :: i :: _ => (i, Some(o))
   case "-i" :: i :: _ => (i, None)
   case _ => sys.error("Invalid arguments, mention at least the -i flag pls")
 }
